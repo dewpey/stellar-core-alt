@@ -126,9 +126,9 @@ simulateInflation(int ledgerVersion, int nbAccounts, int64& totCoins,
         }
     }
 
-    // 1% annual inflation on a weekly basis
-    // 0.000190721
-    auto inflation = bigDivide(totCoins, 190721, 1000000000, ROUND_DOWN);
+    // 100% annual inflation on a weekly basis
+    // 0.0190721 or 1.90721% each week
+    auto inflation = bigDivide(totCoins, 19072100, 1000000000, ROUND_DOWN);
     auto coinsToDole = inflation + totFees;
     int64 leftToDole = coinsToDole;
 
@@ -424,8 +424,8 @@ TEST_CASE("inflation", "[tx][inflation]")
             closeLedgerOn(*app, 4, 21, 7, 2014, {inflationTx});
 
             clh = app->getLedgerManager().getCurrentLedgerHeader();
-            REQUIRE(clh.feePool == 95361000000301);
-            REQUIRE(clh.totalCoins == 1000190721000000000);
+            REQUIRE(clh.feePool == 9536050500000305);
+            REQUIRE(clh.totalCoins == 1019072100000000000);
 
             auto afterInflationRoot = root.getBalance();
             auto afterInflationVoter1 = voter1.getBalance();
@@ -437,9 +437,9 @@ TEST_CASE("inflation", "[tx][inflation]")
             REQUIRE(beforeInflationVoter1 == afterInflationVoter1);
             REQUIRE(beforeInflationVoter2 == afterInflationVoter2);
             REQUIRE(beforeInflationTarget1 ==
-                    afterInflationTarget1 - 31787000000099);
+                    afterInflationTarget1 - 3178683500000097);
             REQUIRE(beforeInflationTarget2 ==
-                    afterInflationTarget2 - 63574000000199);
+                    afterInflationTarget2 - 6357367000000197);
 
             REQUIRE(afterInflationRoot + afterInflationVoter1 +
                         afterInflationVoter2 + afterInflationTarget1 +
