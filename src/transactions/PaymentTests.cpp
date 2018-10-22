@@ -87,7 +87,8 @@ TEST_CASE("payment", "[tx][payment]")
     REQUIRE(a1Account->getLowThreshold() == 0);
     REQUIRE(a1Account->getMediumThreshold() == 0);
     // root did 2 transactions at this point
-    REQUIRE(rootAccount->getBalance() == (1000000000000000000 - paymentAmount -
+    // ONFO - todo hardcoded total coins
+    REQUIRE(rootAccount->getBalance() == (2000000000000000000 - paymentAmount - 
                                           gatewayPayment * 2 - txfee * 3));
 
     closeLedgerOn(*app, 2, 1, 1, 2016);
