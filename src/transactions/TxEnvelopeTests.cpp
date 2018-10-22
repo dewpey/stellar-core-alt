@@ -1223,7 +1223,7 @@ TEST_CASE("txenvelope", "[tx][envelope]")
                     applyResult.result.results()[1]
                         .tr()
                         .accountMergeResult()
-                        .sourceAccountBalance() = paymentAmount - 100;
+                        .sourceAccountBalance() = paymentAmount - baseFee;
                     validateTxResults(tx, *app, {baseFee * 2, txSUCCESS},
                                       applyResult);
                 });
@@ -1250,7 +1250,7 @@ TEST_CASE("txenvelope", "[tx][envelope]")
                     applyResult.result.results()[1]
                         .tr()
                         .accountMergeResult()
-                        .sourceAccountBalance() = paymentAmount - 300;
+                        .sourceAccountBalance() = paymentAmount - (baseFee + baseFee + baseFee);
                     validateTxResults(tx, *app, {baseFee * 2, txSUCCESS},
                                       applyResult);
                 });

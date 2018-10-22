@@ -100,7 +100,7 @@ TEST_CASE("txresults", "[tx][txresults]")
     auto& clh = lm.getCurrentLedgerHeader();
     clh.scpValue.closeTime = 10;
     const int64_t baseReserve = clh.baseReserve;
-    const int64_t baseFee = clh.baseFee;
+    const int64_t baseFee = clh.baseFee; /* ONFO */
     const int64_t startAmount = baseReserve * 100;
 
     auto amount = [&](PaymentValidity t) {
@@ -570,7 +570,7 @@ TEST_CASE("txresults", "[tx][txresults]")
             applyResult.result.results()[1]
                 .tr()
                 .accountMergeResult()
-                .sourceAccountBalance() = startAmount - 1200;
+                .sourceAccountBalance() = startAmount - (1000 + baseFee + baseFee);
             for_all_versions(*app, [&] {
                 validateTxResults(tx, *app, {baseFee * 2, txSUCCESS},
                                   applyResult);

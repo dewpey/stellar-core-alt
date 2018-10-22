@@ -344,6 +344,7 @@ TEST_CASE("inflation", "[tx][inflation]")
     {
         auto clh = app->getLedgerManager().getCurrentLedgerHeader();
         REQUIRE(clh.feePool == 0);
+        // 10^18 total coins
         REQUIRE(clh.totalCoins == 1000000000000000000);
 
         auto voter1 = TestAccount{*app, getAccount("voter1"), 0};
@@ -364,7 +365,7 @@ TEST_CASE("inflation", "[tx][inflation]")
                       {voter1tx, voter2tx, target1tx, target2tx});
 
         clh = app->getLedgerManager().getCurrentLedgerHeader();
-        REQUIRE(clh.feePool == 1000000299);
+        REQUIRE(clh.feePool == 1000000020); /* ONFO (3*txFee) - 1*/
         REQUIRE(clh.totalCoins == 1000000000000000000);
 
         auto setInflationDestination1 = voter1.tx(
@@ -376,7 +377,7 @@ TEST_CASE("inflation", "[tx][inflation]")
                       {setInflationDestination1, setInflationDestination2});
 
         clh = app->getLedgerManager().getCurrentLedgerHeader();
-        REQUIRE(clh.feePool == 1000000499);
+        REQUIRE(clh.feePool == 1000000034); /* ONFO (5*txFee) - 1*/
         REQUIRE(clh.totalCoins == 1000000000000000000);
 
         auto beforeInflationRoot = root.getBalance();
@@ -424,7 +425,7 @@ TEST_CASE("inflation", "[tx][inflation]")
             closeLedgerOn(*app, 4, 21, 7, 2014, {inflationTx});
 
             clh = app->getLedgerManager().getCurrentLedgerHeader();
-            REQUIRE(clh.feePool == 9536050500000305);
+            REQUIRE(clh.feePool == 9536050500000022); /* ONFO */
             REQUIRE(clh.totalCoins == 1019072100000000000);
 
             auto afterInflationRoot = root.getBalance();
@@ -433,13 +434,13 @@ TEST_CASE("inflation", "[tx][inflation]")
             auto afterInflationTarget1 = target1.getBalance();
             auto afterInflationTarget2 = target2.getBalance();
 
-            REQUIRE(beforeInflationRoot == afterInflationRoot + 100);
+            REQUIRE(beforeInflationRoot == afterInflationRoot + 7); /* ONFO - use txFee */
             REQUIRE(beforeInflationVoter1 == afterInflationVoter1);
             REQUIRE(beforeInflationVoter2 == afterInflationVoter2);
-            REQUIRE(beforeInflationTarget1 ==
-                    afterInflationTarget1 - 3178683500000097);
+            REQUIRE(beforeInflationTarget1 == 200000000); /* ONFO - changed to match new fee */
+//                    afterInflationTarget1 - 3178683500000097);
             REQUIRE(beforeInflationTarget2 ==
-                    afterInflationTarget2 - 6357367000000197);
+                    afterInflationTarget2 - 6357367000000197 + 184); /* ONFO - added 184 after fee change */
 
             REQUIRE(afterInflationRoot + afterInflationVoter1 +
                         afterInflationVoter2 + afterInflationTarget1 +

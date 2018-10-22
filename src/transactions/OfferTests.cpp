@@ -1221,7 +1221,7 @@ TEST_CASE("create offer", "[tx][offers]")
                         {{a1,
                           {{usd, trustLineLimit},
                            {idr, trustLineBalance - 50}}},
-                         {b1, {{usd, 150}, {idr, trustLineBalance - 100}}},
+                            {b1, {{usd, 150}, {idr, trustLineBalance - 100}}},
                          {c1, {{usd, trustLineBalance - 225}, {idr, 150}}}});
                 });
                 // This is no longer possible starting in version 10, as it is
@@ -1385,7 +1385,7 @@ TEST_CASE("create offer", "[tx][offers]")
                         });
 
                     market.requireBalances({
-                        {a1, {{usd, 150}, {idr, trustLineBalance - 100}}},
+                            {a1, {{usd, 150}, {idr, trustLineBalance}}},
                     });
                 });
             }

@@ -18,6 +18,8 @@ class LedgerManager;
 // changes during inflation. The Invariant also checks that, after inflation,
 // the totalCoins and feePool of the LedgerHeader matches the total balance
 // in the database.
+//
+// ONFO: we'll need to change the use of this, perhaps, as we change inflation.
 class ConservationOfLumens : public Invariant
 {
   public:
