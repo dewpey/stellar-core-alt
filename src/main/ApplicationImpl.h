@@ -31,6 +31,7 @@ class CommandHandler;
 class Database;
 class LoadGenerator;
 class NtpSynchronizationChecker;
+class LedgerStateRoot;
 
 class ApplicationImpl : public Application
 {
@@ -72,8 +73,12 @@ class ApplicationImpl : public Application
     virtual StatusManager& getStatusManager() override;
 
     virtual asio::io_service& getWorkerIOService() override;
+    virtual void postOnMainThread(std::function<void()>&& f) override;
+    virtual void postOnMainThreadWithDelay(std::function<void()>&& f) override;
+    virtual void postOnBackgroundThread(std::function<void()>&& f) override;
 
     void newDB() override;
+
     virtual void start() override;
 
     // Stops the worker io_service, which should cause the threads to exit once
@@ -95,8 +100,6 @@ class ApplicationImpl : public Application
 
     virtual LoadGenerator& getLoadGenerator() override;
 
-    virtual void checkDB() override;
-
     virtual void applyCfgCommands() override;
 
     virtual void reportCfgMetrics() override;
@@ -106,6 +109,8 @@ class ApplicationImpl : public Application
     virtual void reportInfo() override;
 
     virtual Hash const& getNetworkID() const override;
+
+    virtual LedgerStateRoot& getLedgerStateRoot() override;
 
   protected:
     std::unique_ptr<LedgerManager>
@@ -148,6 +153,7 @@ class ApplicationImpl : public Application
     std::unique_ptr<BanManager> mBanManager;
     std::shared_ptr<NtpSynchronizationChecker> mNtpSynchronizationChecker;
     std::unique_ptr<StatusManager> mStatusManager;
+    std::unique_ptr<LedgerStateRoot> mLedgerStateRoot;
 
     std::vector<std::thread> mWorkerThreads;
 

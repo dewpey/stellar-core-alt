@@ -182,8 +182,7 @@ HistoryManagerImpl::localFilename(std::string const& basename)
 HistoryArchiveState
 HistoryManagerImpl::getLastClosedHistoryArchiveState() const
 {
-    auto seq =
-        mApp.getLedgerManager().getLastClosedLedgerHeader().header.ledgerSeq;
+    auto seq = mApp.getLedgerManager().getLastClosedLedgerNum();
     auto& bl = mApp.getBucketManager().getBucketList();
     return HistoryArchiveState(seq, bl);
 }
@@ -236,7 +235,7 @@ HistoryManagerImpl::getMaxLedgerQueuedToPublish()
 bool
 HistoryManagerImpl::maybeQueueHistoryCheckpoint()
 {
-    uint32_t seq = mApp.getLedgerManager().getLedgerNum();
+    uint32_t seq = mApp.getLedgerManager().getLastClosedLedgerNum() + 1;
     if (seq != nextCheckpointLedger(seq))
     {
         return false;
@@ -414,8 +413,7 @@ HistoryManagerImpl::historyPublished(
         this->mPublishFailure.Mark();
     }
     mPublishWork.reset();
-    mApp.getClock().getIOService().post(
-        [this]() { this->publishQueuedHistory(); });
+    mApp.postOnMainThread([this]() { this->publishQueuedHistory(); });
 }
 
 void

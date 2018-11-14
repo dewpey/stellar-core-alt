@@ -232,24 +232,22 @@ TEST_CASE("sub-subwork items succed at the same time", "[work]")
     auto work2 = w->addWork<WorkDoNothing>("work-2");
     auto work3 = w->addWork<WorkDoNothing>("work-3");
 
-    auto i = 0;
-
     wm.advanceChildren();
+    clock.crank(false);
+
+    work2->forceSuccess();
+    work1->mFirstSubwork->forceSuccess();
+    work3->forceSuccess();
+
     while (!wm.allChildrenDone())
     {
-        clock.crank(false);
-
-        switch (i++)
+        if (work1->mSecondSubwork)
         {
-        case 1:
-            work2->forceSuccess();
-            work1->mFirstSubwork->forceSuccess();
-            work3->forceSuccess();
-            break;
-        case 2:
             work1->mSecondSubwork->forceSuccess();
             break;
         }
+
+        clock.crank(false);
     }
 
     REQUIRE(!work1->mCalledSuccessWithPendingSubwork);

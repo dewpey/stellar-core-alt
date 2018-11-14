@@ -20,12 +20,12 @@
 #include "history/HistoryManager.h"
 #include "invariant/AccountSubEntriesCountIsValid.h"
 #include "invariant/BucketListIsConsistentWithDatabase.h"
-#include "invariant/CacheIsConsistentWithDatabase.h"
 #include "invariant/ConservationOfLumens.h"
 #include "invariant/InvariantManager.h"
 #include "invariant/LedgerEntryIsValid.h"
 #include "invariant/LiabilitiesMatchOffers.h"
 #include "ledger/LedgerManager.h"
+#include "ledger/LedgerState.h"
 #include "main/CommandHandler.h"
 #include "main/ExternalQueue.h"
 #include "main/Maintainer.h"
@@ -42,6 +42,7 @@
 #include "scp/LocalNode.h"
 #include "scp/QuorumSetUtils.h"
 #include "simulation/LoadGenerator.h"
+#include "util/GlobalChecks.h"
 #include "util/StatusManager.h"
 #include "work/WorkManager.h"
 
@@ -121,10 +122,11 @@ ApplicationImpl::initialize()
     mWorkManager = WorkManager::create(*this);
     mBanManager = BanManager::create(*this);
     mStatusManager = std::make_unique<StatusManager>();
+    mLedgerStateRoot = std::make_unique<LedgerStateRoot>(
+        *mDatabase, mConfig.ENTRY_CACHE_SIZE, mConfig.BEST_OFFERS_CACHE_SIZE);
 
     BucketListIsConsistentWithDatabase::registerInvariant(*this);
     AccountSubEntriesCountIsValid::registerInvariant(*this);
-    CacheIsConsistentWithDatabase::registerInvariant(*this);
     ConservationOfLumens::registerInvariant(*this);
     LedgerEntryIsValid::registerInvariant(*this);
     LiabilitiesMatchOffers::registerInvariant(*this);
@@ -229,8 +231,8 @@ ApplicationImpl::getJsonInfo()
     info["protocol_version"] = getConfig().LEDGER_PROTOCOL_VERSION;
     info["state"] = getStateHuman();
     info["startedOn"] = VirtualClock::pointToISOString(mStartedOn);
-    info["ledger"]["num"] = (int)lm.getLedgerNum();
     auto const& lcl = lm.getLastClosedLedgerHeader();
+    info["ledger"]["num"] = (int)lcl.header.ledgerSeq;
     info["ledger"]["hash"] = binToHex(lcl.hash);
     info["ledger"]["closeTime"] = (Json::UInt64)lcl.header.scpValue.closeTime;
     info["ledger"]["version"] = lcl.header.ledgerVersion;
@@ -499,16 +501,6 @@ ApplicationImpl::getLoadGenerator()
 }
 
 void
-ApplicationImpl::checkDB()
-{
-    getClock().getIOService().post([this] {
-        checkDBAgainstBuckets(this->getMetrics(), this->getBucketManager(),
-                              this->getDatabase(),
-                              this->getBucketManager().getBucketList());
-    });
-}
-
-void
 ApplicationImpl::applyCfgCommands()
 {
     for (auto cmd : mConfig.COMMANDS)
@@ -747,6 +739,24 @@ ApplicationImpl::getWorkerIOService()
 }
 
 void
+ApplicationImpl::postOnMainThread(std::function<void()>&& f)
+{
+    mVirtualClock.postToCurrentCrank(std::move(f));
+}
+
+void
+ApplicationImpl::postOnMainThreadWithDelay(std::function<void()>&& f)
+{
+    mVirtualClock.postToNextCrank(std::move(f));
+}
+
+void
+ApplicationImpl::postOnBackgroundThread(std::function<void()>&& f)
+{
+    getWorkerIOService().post(std::move(f));
+}
+
+void
 ApplicationImpl::enableInvariantsFromConfig()
 {
     for (auto name : mConfig.INVARIANT_CHECKS)
@@ -771,5 +781,12 @@ std::unique_ptr<OverlayManager>
 ApplicationImpl::createOverlayManager()
 {
     return OverlayManager::create(*this);
+}
+
+LedgerStateRoot&
+ApplicationImpl::getLedgerStateRoot()
+{
+    assertThreadIsMain();
+    return *mLedgerStateRoot;
 }
 }

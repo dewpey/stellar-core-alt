@@ -91,6 +91,9 @@ Config::Config() : NODE_SEED(SecretKey::random())
 
     DATABASE = SecretValue{"sqlite3://:memory:"};
     NTP_SERVER = "pool.ntp.org";
+
+    ENTRY_CACHE_SIZE = 4096;
+    BEST_OFFERS_CACHE_SIZE = 64;
 }
 
 namespace
@@ -504,6 +507,14 @@ Config::load(std::string const& filename)
             {
                 INVARIANT_CHECKS = readStringArray(item);
             }
+            else if (item.first == "ENTRY_CACHE_SIZE")
+            {
+                ENTRY_CACHE_SIZE = readInt<size_t>(item);
+            }
+            else if (item.first == "BEST_OFFERS_CACHE_SIZE")
+            {
+                BEST_OFFERS_CACHE_SIZE = readInt<size_t>(item);
+            }
             else
             {
                 std::string err("Unknown configuration entry: '");
@@ -632,7 +643,7 @@ Config::validateConfig()
             if (QUORUM_SET.threshold < minSize)
             {
                 LOG(ERROR)
-                    << "Your THESHOLD_PERCENTAGE is too low. If you really "
+                    << "Your THRESHOLD_PERCENTAGE is too low. If you really "
                        "want "
                        "this set UNSAFE_QUORUM=true. Be sure you know what you "
                        "are doing!";
