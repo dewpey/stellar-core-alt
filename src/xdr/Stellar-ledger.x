@@ -48,6 +48,7 @@ struct LedgerHeader
 
     int64 totalCoins; // total number of stroops in existence.
                       // 10,000,000 stroops in 1 XLM
+		      // ONFO - want to be able change this.  perhaps change this on the fly?
 
     int64 feePool;       // fees burned since last inflation run
     uint32 inflationSeq; // inflation sequence number

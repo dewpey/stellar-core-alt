@@ -232,7 +232,7 @@ CommandHandler::testTx(std::string const& params, std::string& retStr)
     {
         root["status"] = "error";
         root["detail"] = "Bad HTTP GET: try something like: "
-                         "testtx?from=root&to=bob&amount=1000000000";
+            "testtx?from=root&to=bob&amount=1000000000"; /* ONFO amount is an int64 quantity of stroops, 10000000 stroops = 1 XLM */
     }
     retStr = root.toStyledString();
 }
