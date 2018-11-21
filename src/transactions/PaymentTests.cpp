@@ -79,8 +79,7 @@ TEST_CASE("payment", "[tx][payment]")
     Asset idr = makeAsset(gateway, "IDR");
     Asset usd = makeAsset(gateway2, "USD");
 
-<<<<<<< HEAD
-    AccountFrame::pointer a1Account, rootAccount;
+/*    AccountFrame::pointer a1Account, rootAccount;
     rootAccount = loadAccount(root, *app);
     a1Account = loadAccount(a1, *app);
     REQUIRE(rootAccount->getMasterWeight() == 1);
@@ -96,7 +95,7 @@ TEST_CASE("payment", "[tx][payment]")
     // ONFO - todo hardcoded total coins
     REQUIRE(rootAccount->getBalance() == (2000000000000000000 - paymentAmount -
                                           gatewayPayment * 2 - txfee * 3));
-=======
+*/
     AccountEntry rootAcc, a1Acc;
     {
         LedgerState ls(app->getLedgerStateRoot());
@@ -118,10 +117,9 @@ TEST_CASE("payment", "[tx][payment]")
 //                                    gatewayPayment * 2 - txfee * 3));
                                     // root did 2 transactions at this point
         // ONFO - todo hardcoded total coins
-        REQUIRE(rootAcc.balance == (2000000000000000000 - paymentAmount - 
+        REQUIRE(rootAcc.balance == (2000000000000000000 - paymentAmount -
                                                                           gatewayPayment * 2 - txfee * 3));
     }
->>>>>>> upstream/master
 
     closeLedgerOn(*app, 2, 1, 1, 2016);
 
