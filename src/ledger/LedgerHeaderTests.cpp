@@ -48,7 +48,7 @@ TEST_CASE("genesisledger", "[ledger]")
     REQUIRE(header.inflationSeq == 0);
     REQUIRE(header.idPool == 0);
     REQUIRE(header.baseFee == 1); /* ONFO */
-    REQUIRE(header.baseReserve == 100000000);
+    REQUIRE(header.baseReserve == 10000000);
     REQUIRE(header.maxTxSetSize == 100);
     REQUIRE(header.skipList.size() == 4);
     REQUIRE(header.skipList[0] == Hash{});

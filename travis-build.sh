@@ -12,11 +12,7 @@ MASTER=$(git describe --always FETCH_HEAD)
 HEAD=$(git describe --always HEAD)
 echo $MASTER
 echo $HEAD
-if [ $HEAD == $MASTER ]
-then
-    echo "HEAD SHA1 equals master; probably just establishing merge, exiting build early"
-    exit 0
-fi
+
 
 # Try to ensure we're using the real g++ and clang++ versions we want
 mkdir bin
